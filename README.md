@@ -22,4 +22,4 @@
     - how you interpret the functional requirements
     - how you structure your code
     - how you solve the problem you are given
-  
+    - you may not have time to complete everything, what you choose to focus on is important
