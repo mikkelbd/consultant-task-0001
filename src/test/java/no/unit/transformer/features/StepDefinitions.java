@@ -94,7 +94,7 @@ public class StepDefinitions extends TestWiring {
 
     @When("the user transforms the file from (.*) to (.*)")
     public void theUserTransformsTheFileFromSerializationAToSerializationB(String serializationA,
-                                                                           String SerializatiionB) {
+                                                                           String serializatiionB) {
         throw new PendingException();
     }
 
