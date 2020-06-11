@@ -15,7 +15,7 @@ public class StepDefinitions extends TestWiring {
 
     public static final String SINGLE_OBJECT_JSON = "single_object.json";
 
-    @io.cucumber.java.en.Given("^the user has an application \"Transformer\" that has a command line interface$")
+    @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
         new Transformer();
     }
