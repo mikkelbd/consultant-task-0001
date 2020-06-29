@@ -3,19 +3,27 @@ package no.unit.transformer.features;
 import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import no.unit.transformer.Transformer;
+import no.unit.transformer.UsersJsonFile;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.io.IOException;
 
+import static no.unit.transformer.ObjectMappers.jsonObjectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class StepDefinitions extends TestWiring {
 
     private Transformer transformer;
     private CommandLine commandLine;
+
+    private String inputFileArgument;
+    private String outputFileArgument;
+    private File transformedOutputFile;
+    private int transformerExitCode;
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
@@ -25,31 +33,21 @@ public class StepDefinitions extends TestWiring {
 
     @And("\"Transformer\" has a flag \"--input\" that takes a single argument that is a filename")
     public void hasAFlagInputThatTakesASingleArgumentThatIsAFilename() {
-        CommandLine.ParseResult result = commandLine.parseArgs("--input", "filename.json");
+        CommandLine.ParseResult result = commandLine.parseArgs("--input", "filename.json", "--output", "some file");
         assertThat(result.matchedOption("--input").<File>getValue()).hasName("filename.json");
     }
 
     @And("\"Transformer\" has a flag \"--output\" that takes a single argument that is a filename")
     public void hasAFlagOutputThatTakesASingleArgumentThatIsAFilename() {
-        CommandLine.ParseResult result = commandLine.parseArgs("--output", "filename.json");
+        CommandLine.ParseResult result = commandLine.parseArgs("--output", "filename.json", "--input", "some file");
         assertThat(result.matchedOption("--output").<File>getValue()).hasName("filename.json");
-    }
-
-    @And("\"Transformer\" has a flag \"--input-format\" that takes a single argument \"xml\" or \"json\"")
-    public void theTransformerHasAFlagInputFormatThatTakesASingleArgumentXmlOrJson() {
-        CommandLine.ParseResult result = commandLine.parseArgs("--input-format", "json");
-        assertThat(result.matchedOption("--input-format").<String>getValue()).isEqualTo("json");
-    }
-
-    @And("\"Transformer\" has a flag \"--output-format\" that takes a single argument \"xml\" or \"json\"")
-    public void theTransformerHasAFlagOutputFormatThatTakesASingleArgumentXmlOrJson() {
-        CommandLine.ParseResult result = commandLine.parseArgs("--output-format", "xml");
-        assertThat(result.matchedOption("--output-format").<String>getValue()).isEqualTo("xml");
     }
 
     @Given("the user has a file {string}")
     public void theUserHasAFileInputFile(String file) {
-        throw new PendingException();
+        File fileFromResources = getFileFromResources(file);
+        assertThat(fileFromResources).exists();
+        inputFileArgument = fileFromResources.getAbsolutePath();
     }
 
     @And("the data is formatted correctly")
@@ -57,40 +55,40 @@ public class StepDefinitions extends TestWiring {
         // do nothing
     }
 
-    @When("the user transforms the file to (.*)")
-    public void theUserTransformsTheFileTo(String outputFile) {
-        throw new PendingException();
+    @When("the user transforms the file to {string}")
+    public void theUserTransformsTheFileTo(String file) {
+        transformedOutputFile = new File("build/", file);
+        outputFileArgument = transformedOutputFile.getAbsolutePath();
+        String[] args = {"--input", inputFileArgument, "--output", outputFileArgument};
+        transformerExitCode = commandLine.execute(args);
     }
 
-    @Then("they see that the data is transformed to (.*)")
-    public void theySeeThatTheDataIsTransformedToSerializationB(String serialization) {
-        throw new PendingException();
+    @And("the exitcode from the transformer is {int}")
+    public void theExitcodeFromTheTransforIs(int expectedExitCode) {
+        assertThat(transformerExitCode).isEqualTo(expectedExitCode);
+    }
+
+    @And("they see that the data is transformed to {string}")
+    public void theySeeThatTheDataIsTransformedToSerialization(String serialization) throws IOException {
+        assertThat(transformerExitCode).isEqualTo(0);
+
+        if ("json".equals(serialization)) {
+            UsersJsonFile transformedUsersJsonFile = jsonObjectMapper.readValue(transformedOutputFile, UsersJsonFile.class);
+            assertThat(transformedUsersJsonFile.getUsers()).isNotEmpty();
+        } else if ("xml".equals(serialization)) {
+            throw new PendingException("xml case not implemented");
+        } else {
+            fail("Should either be json or xml");
+        }
     }
 
     @And("that the elements in \"users\" section of the file are ordered by element \"sequence\"")
     public void thatTheElementsInSectionOfTheFileAreOrderedByElement() {
-        throw new PendingException();
+        throw new PendingException("Checking of ordering is not yet implemented");
     }
 
-    @And("they open the transformed file")
-    public void theyOpenTheTransformedFile() {
-        throw new PendingException();
-    }
-
-    @When("the user attempts to transform the file")
-    public void theUserAttemptsToTransformTheFile() {
-        throw new PendingException();
-    }
-
-    @Given("the user has a badly formatted file")
-    public void theUserHasABadlyFormattedFile() {
-        File file = getFileFromResources("badly_formatted.json");
-        assertThat(file).exists();
-    }
-
-    @Then("they see an error message telling them that the input file is badly formatted")
+    @And("they see an error message telling them that the input file is badly formatted")
     public void theySeeAnErrorMessageTellingThemThatTheInputFileIsBadlyFormatted() {
-        throw new PendingException();
+        throw new PendingException("Checking of error message from transformer is not yet implemented");
     }
-
 }
