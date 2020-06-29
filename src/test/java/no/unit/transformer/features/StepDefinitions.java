@@ -6,38 +6,47 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import no.unit.transformer.Transformer;
+import picocli.CommandLine;
 
 import java.io.File;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StepDefinitions extends TestWiring {
 
     public static final String SINGLE_OBJECT_JSON = "single_object.json";
+    private Transformer transformer;
+    private CommandLine commandLine;
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
-        new Transformer();
+        transformer = new Transformer();
+        commandLine = new CommandLine(transformer);
     }
 
     @And("\"Transformer\" has a flag \"--input\" that takes a single argument that is a filename")
     public void hasAFlagInputThatTakesASingleArgumentThatIsAFilename() {
-        throw new PendingException();
+        CommandLine.ParseResult result = commandLine.parseArgs("--input", "filename.json");
+        assertThat(result.matchedOption("--input").<File>getValue()).hasName("filename.json");
     }
 
     @And("\"Transformer\" has a flag \"--output\" that takes a single argument that is a filename")
     public void hasAFlagOutputThatTakesASingleArgumentThatIsAFilename() {
-        throw new PendingException();
+        CommandLine.ParseResult result = commandLine.parseArgs("--output", "filename.json");
+        assertThat(result.matchedOption("--output").<File>getValue()).hasName("filename.json");
     }
 
     @And("\"Transformer\" has a flag \"--input-format\" that takes a single argument \"xml\" or \"json\"")
     public void theTransformerHasAFlagInputFormatThatTakesASingleArgumentXmlOrJson() {
-        throw new PendingException();
+        CommandLine.ParseResult result = commandLine.parseArgs("--input-format", "json");
+        assertThat(result.matchedOption("--input-format").<String>getValue()).isEqualTo("json");
     }
 
     @And("\"Transformer\" has a flag \"--output-format\" that takes a single argument \"xml\" or \"json\"")
     public void theTransformerHasAFlagOutputFormatThatTakesASingleArgumentXmlOrJson() {
-        throw new PendingException();
+        CommandLine.ParseResult result = commandLine.parseArgs("--output-format", "xml");
+        assertThat(result.matchedOption("--output-format").<String>getValue()).isEqualTo("xml");
     }
 
     @Given("the user has a file {string}")
