@@ -11,11 +11,9 @@ import picocli.CommandLine;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StepDefinitions extends TestWiring {
 
-    public static final String SINGLE_OBJECT_JSON = "single_object.json";
     private Transformer transformer;
     private CommandLine commandLine;
 
@@ -50,65 +48,17 @@ public class StepDefinitions extends TestWiring {
     }
 
     @Given("the user has a file {string}")
-    public void theUserHasAFile(String filename) {
-        File actual = getFileFromResources(filename);
-        assertTrue(actual.exists());
-    }
-
-    @Given("the user has an input file that contains an array that contains a single object")
-    public void theUserHasAnInputFileThatContainsAnArrayThatContainsASingleObject() {
-        File actual = getFileFromResources(SINGLE_OBJECT_JSON);
-        assertTrue(actual.exists());
-    }
-
-    @And("the object has field {string} with string value {string}")
-    public void theObjectHasFieldWithStringValue(String field, String value) {
-        throw new PendingException();
-    }
-
-    @When("the user transforms the data")
-    public void theUserTransformsTheData() {
-        throw new PendingException();
-    }
-
-    @Then("the user sees that the output file contains an array that contains a single object")
-    public void theUserSeesThatTheOutputFileContainsAnArrayThatContainsASingleObject() {
-        throw new PendingException();
-    }
-
-    @And("the object has a field {string} with an integer value {string}")
-    public void theObjectHasAFieldWithAnIntegerValue(String field, String integer) {
-        throw new PendingException();
-    }
-
-    @And("the object has a field {string}")
-    public void theObjectHasAField(String field) {
-        throw new PendingException();
-    }
-
-    @And("the field \"identity\" contains an object with the fields \"given\" and \"family\"")
-    public void theFieldContainsAnObjectWithTheFieldsAnd() {
-        throw new PendingException();
-    }
-
-    @And("the field {string} contains string value {string}")
-    public void theFieldContainsStringValue(String field, String value) {
+    public void theUserHasAFileInputFile(String file) {
         throw new PendingException();
     }
 
     @And("the data is formatted correctly")
     public void theDataIsFormattedCorrectly() {
-        throw new PendingException();
+        // do nothing
     }
 
-    @When("the user transforms the file from (.*) to (.*)")
-    public void theUserTransformsTheFileFromSerializationAToSerializationB(String serializationA,
-                                                                           String serializatiionB) {
-        throw new PendingException();
-    }
-
-    @And("they open the file")
-    public void theyOpenTheFile() {
+    @When("the user transforms the file to (.*)")
+    public void theUserTransformsTheFileTo(String outputFile) {
         throw new PendingException();
     }
 
@@ -122,28 +72,8 @@ public class StepDefinitions extends TestWiring {
         throw new PendingException();
     }
 
-    @Given("the user has a (.*) in (.*)")
-    public void theUserHasAFileInSerialization(String filename, String serialization) {
-        throw new PendingException();
-    }
-
-    @When("they transform the file without specifying the output format flag")
-    public void theyTransformTheFileWithoutSpecifyingTheOutputFormatFlag() {
-        throw new PendingException();
-    }
-
     @And("they open the transformed file")
     public void theyOpenTheTransformedFile() {
-        throw new PendingException();
-    }
-
-    @Then("the file is transformed to serialization")
-    public void theFileIsTransformedToSerialization() {
-        throw new PendingException();
-    }
-
-    @And("the data is formatted badly")
-    public void theDataIsFormattedBadly() {
         throw new PendingException();
     }
 
@@ -152,8 +82,15 @@ public class StepDefinitions extends TestWiring {
         throw new PendingException();
     }
 
+    @Given("the user has a badly formatted file")
+    public void theUserHasABadlyFormattedFile() {
+        File file = getFileFromResources("badly_formatted.json");
+        assertThat(file).exists();
+    }
+
     @Then("they see an error message telling them that the input file is badly formatted")
     public void theySeeAnErrorMessageTellingThemThatTheInputFileIsBadlyFormatted() {
         throw new PendingException();
     }
+
 }

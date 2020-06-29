@@ -9,53 +9,23 @@ Feature:
     And "Transformer" has a flag "--output-format" that takes a single argument "xml" or "json"
 
   @wip
-  Scenario: User transforms a single object from format A to format B
-    Given the user has an input file that contains an array that contains a single object
-    And the object has field "name" with string value "Carstens, Ull"
-    And the object has field "sequence" with string value "1"
-    And the object has field "role" with string value "Executive"
-    When the user transforms the data
-    Then the user sees that the output file contains an array that contains a single object
-    And the object has a field "id" with an integer value "1"
-    And the object has a field "identity"
-    And the field "identity" contains an object with the fields "given" and "family"
-    And the field "given" contains string value "Ull"
-    And the field "family" contains string value "Carstens"
-    And the object has field "role" with string value "Executive"
-
-  @wip
-  Scenario Outline: User transforms data from file to JSON
-    Given the user has a file "input.json"
+  Scenario Outline: User transforms a file with users from an input file to an output file
+    Given the user has a file "<input-file>"
     And the data is formatted correctly
-    When the user transforms the file from <serialization-a> to <serialization-b>
-    And they open the file
-    Then they see that the data is transformed to <serialization-b>
-    And that the elements in "users" section of the file are ordered by element "sequence"
-
-    Examples:
-      | serialization-a | serialization-b |
-      | xml             | xml             |
-      | json            | json            |
-      | xml             | json            |
-      | json            | xml             |
-
-  @wip
-  Scenario Outline: User transforms file without specifying an output format
-    Given the user has a <file> in <serialization>
-    And the data is formatted correctly
-    When they transform the file without specifying the output format flag
+    When the user transforms the file to <output-file>
     And they open the transformed file
-    Then the file is transformed to serialization
+    Then they see that the data is transformed to <output-format>
     And that the elements in "users" section of the file are ordered by element "sequence"
 
     Examples:
-      | file       | serialization |
-      | input.xml  | xml           |
-      | input.json | json          |
+      | input-file | output-file            | output-format |
+      | users.json | transformed_users.json | json          |
+      | users.xml  | transformed_users.xml  | xml           |
+      | users.json | transformed_users.xml  | xml           |
+      | users.xml  | transformed_users.json | json          |
 
   @wip
   Scenario: User attempts to transform badly formatted file
-    Given the user has a file "badly_formatted.json"
-    And the data is formatted badly
+    Given the user has a badly formatted file
     When the user attempts to transform the file
     Then they see an error message telling them that the input file is badly formatted
