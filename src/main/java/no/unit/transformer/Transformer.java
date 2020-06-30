@@ -33,9 +33,11 @@ public class Transformer implements Callable<Integer> {
             return 0;
         } catch (JsonParseException | JsonMappingException e) {
             err.println(String.format("File %s seems to be malformed JSON", inputFile));
+            e.printStackTrace();
             return 1;
         } catch (IOException e) {
             err.println(String.format("Could not find or open file %s", inputFile));
+            e.printStackTrace();
             return 1;
         }
     }
