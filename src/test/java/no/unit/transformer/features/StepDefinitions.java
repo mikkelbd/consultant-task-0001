@@ -11,6 +11,8 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 import static no.unit.transformer.ObjectMappers.jsonObjectMapper;
@@ -19,19 +21,20 @@ import static org.assertj.core.api.Assertions.fail;
 
 public class StepDefinitions extends TestWiring {
 
-    private Transformer transformer;
     private CommandLine commandLine;
-
     private String inputFileArgument;
     private String outputFileArgument;
     private File transformedOutputFile;
-    private int transformerExitCode;
     private List<User> usersListFromTransformedFile;
+    private int transformerExitCode;
+    private StringWriter errorWriterUsedByCommand;
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
-        transformer = new Transformer();
+        Transformer transformer = new Transformer();
         commandLine = new CommandLine(transformer);
+        errorWriterUsedByCommand = new StringWriter();
+        commandLine.setErr(new PrintWriter(errorWriterUsedByCommand));
     }
 
     @And("\"Transformer\" has a flag \"--input\" that takes a single argument that is a filename")
@@ -93,6 +96,6 @@ public class StepDefinitions extends TestWiring {
 
     @And("they see an error message telling them that the input file is badly formatted")
     public void theySeeAnErrorMessageTellingThemThatTheInputFileIsBadlyFormatted() {
-        throw new PendingException("Checking of error message from transformer is not yet implemented");
+        assertThat(errorWriterUsedByCommand.toString()).contains("seems to be malformed");
     }
 }
