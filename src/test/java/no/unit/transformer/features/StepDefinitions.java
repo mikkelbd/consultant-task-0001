@@ -1,150 +1,102 @@
 package no.unit.transformer.features;
 
-import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import no.unit.transformer.Transformer;
+import no.unit.transformer.User;
+import no.unit.transformer.UsersJsonFile;
+import no.unit.transformer.UsersXmlFile;
+import picocli.CommandLine;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static no.unit.transformer.ObjectMappers.jsonObjectMapper;
+import static no.unit.transformer.ObjectMappers.xmlMapper;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class StepDefinitions extends TestWiring {
 
-    public static final String SINGLE_OBJECT_JSON = "single_object.json";
+    private CommandLine commandLine;
+    private String inputFileArgument;
+    private String outputFileArgument;
+    private File transformedOutputFile;
+    private List<User> usersListFromTransformedFile;
+    private int transformerExitCode;
+    private StringWriter errorWriterUsedByCommand;
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
-        new Transformer();
+        Transformer transformer = new Transformer();
+        commandLine = new CommandLine(transformer);
+        errorWriterUsedByCommand = new StringWriter();
+        commandLine.setErr(new PrintWriter(errorWriterUsedByCommand));
     }
 
     @And("\"Transformer\" has a flag \"--input\" that takes a single argument that is a filename")
     public void hasAFlagInputThatTakesASingleArgumentThatIsAFilename() {
-        throw new PendingException();
+        CommandLine.ParseResult result = commandLine.parseArgs("--input", "filename.json", "--output", "some file");
+        assertThat(result.matchedOption("--input").<File>getValue()).hasName("filename.json");
     }
 
     @And("\"Transformer\" has a flag \"--output\" that takes a single argument that is a filename")
     public void hasAFlagOutputThatTakesASingleArgumentThatIsAFilename() {
-        throw new PendingException();
-    }
-
-    @And("\"Transformer\" has a flag \"--input-format\" that takes a single argument \"xml\" or \"json\"")
-    public void theTransformerHasAFlagInputFormatThatTakesASingleArgumentXmlOrJson() {
-        throw new PendingException();
-    }
-
-    @And("\"Transformer\" has a flag \"--output-format\" that takes a single argument \"xml\" or \"json\"")
-    public void theTransformerHasAFlagOutputFormatThatTakesASingleArgumentXmlOrJson() {
-        throw new PendingException();
+        CommandLine.ParseResult result = commandLine.parseArgs("--output", "filename.json", "--input", "some file");
+        assertThat(result.matchedOption("--output").<File>getValue()).hasName("filename.json");
     }
 
     @Given("the user has a file {string}")
-    public void theUserHasAFile(String filename) {
-        File actual = getFileFromResources(filename);
-        assertTrue(actual.exists());
-    }
-
-    @Given("the user has an input file that contains an array that contains a single object")
-    public void theUserHasAnInputFileThatContainsAnArrayThatContainsASingleObject() {
-        File actual = getFileFromResources(SINGLE_OBJECT_JSON);
-        assertTrue(actual.exists());
-    }
-
-    @And("the object has field {string} with string value {string}")
-    public void theObjectHasFieldWithStringValue(String field, String value) {
-        throw new PendingException();
-    }
-
-    @When("the user transforms the data")
-    public void theUserTransformsTheData() {
-        throw new PendingException();
-    }
-
-    @Then("the user sees that the output file contains an array that contains a single object")
-    public void theUserSeesThatTheOutputFileContainsAnArrayThatContainsASingleObject() {
-        throw new PendingException();
-    }
-
-    @And("the object has a field {string} with an integer value {string}")
-    public void theObjectHasAFieldWithAnIntegerValue(String field, String integer) {
-        throw new PendingException();
-    }
-
-    @And("the object has a field {string}")
-    public void theObjectHasAField(String field) {
-        throw new PendingException();
-    }
-
-    @And("the field \"identity\" contains an object with the fields \"given\" and \"family\"")
-    public void theFieldContainsAnObjectWithTheFieldsAnd() {
-        throw new PendingException();
-    }
-
-    @And("the field {string} contains string value {string}")
-    public void theFieldContainsStringValue(String field, String value) {
-        throw new PendingException();
+    public void theUserHasAFileInputFile(String file) {
+        File fileFromResources = getFileFromResources(file);
+        assertThat(fileFromResources).exists();
+        inputFileArgument = fileFromResources.getAbsolutePath();
     }
 
     @And("the data is formatted correctly")
     public void theDataIsFormattedCorrectly() {
-        throw new PendingException();
+        // do nothing
     }
 
-    @When("the user transforms the file from (.*) to (.*)")
-    public void theUserTransformsTheFileFromSerializationAToSerializationB(String serializationA,
-                                                                           String serializatiionB) {
-        throw new PendingException();
+    @When("the user transforms the file to {string}")
+    public void theUserTransformsTheFileTo(String file) {
+        transformedOutputFile = new File("build/", file);
+        outputFileArgument = transformedOutputFile.getAbsolutePath();
+        String[] args = {"--input", inputFileArgument, "--output", outputFileArgument};
+        transformerExitCode = commandLine.execute(args);
     }
 
-    @And("they open the file")
-    public void theyOpenTheFile() {
-        throw new PendingException();
+    @And("the exitcode from the transformer is {int}")
+    public void theExitcodeFromTheTransforIs(int expectedExitCode) {
+        assertThat(transformerExitCode).isEqualTo(expectedExitCode);
     }
 
-    @Then("they see that the data is transformed to (.*)")
-    public void theySeeThatTheDataIsTransformedToSerializationB(String serialization) {
-        throw new PendingException();
+    @And("they see that the data is transformed to {string}")
+    public void theySeeThatTheDataIsTransformedToSerialization(String outputFormat) throws IOException {
+        if ("json".equals(outputFormat)) {
+            UsersJsonFile transformedUsersJsonFile = jsonObjectMapper.readValue(transformedOutputFile, UsersJsonFile.class);
+            usersListFromTransformedFile = transformedUsersJsonFile.getUsers();
+            assertThat(usersListFromTransformedFile).isNotEmpty();
+        } else if ("xml".equals(outputFormat)) {
+            UsersXmlFile transformedUsersXmlFile = xmlMapper.readValue(transformedOutputFile, UsersXmlFile.class);
+            usersListFromTransformedFile = transformedUsersXmlFile.getUser();
+            assertThat(usersListFromTransformedFile).isNotEmpty();
+        } else {
+            fail("Should either be json or xml");
+        }
     }
 
     @And("that the elements in \"users\" section of the file are ordered by element \"sequence\"")
-    public void thatTheElementsInSectionOfTheFileAreOrderedByElement() {
-        throw new PendingException();
+    public void thatTheUsersListIsOrderedBySequence() {
+        assertThat(usersListFromTransformedFile).isSorted();
     }
 
-    @Given("the user has a (.*) in (.*)")
-    public void theUserHasAFileInSerialization(String filename, String serialization) {
-        throw new PendingException();
-    }
-
-    @When("they transform the file without specifying the output format flag")
-    public void theyTransformTheFileWithoutSpecifyingTheOutputFormatFlag() {
-        throw new PendingException();
-    }
-
-    @And("they open the transformed file")
-    public void theyOpenTheTransformedFile() {
-        throw new PendingException();
-    }
-
-    @Then("the file is transformed to serialization")
-    public void theFileIsTransformedToSerialization() {
-        throw new PendingException();
-    }
-
-    @And("the data is formatted badly")
-    public void theDataIsFormattedBadly() {
-        throw new PendingException();
-    }
-
-    @When("the user attempts to transform the file")
-    public void theUserAttemptsToTransformTheFile() {
-        throw new PendingException();
-    }
-
-    @Then("they see an error message telling them that the input file is badly formatted")
+    @And("they see an error message telling them that the input file is badly formatted")
     public void theySeeAnErrorMessageTellingThemThatTheInputFileIsBadlyFormatted() {
-        throw new PendingException();
+        assertThat(errorWriterUsedByCommand.toString()).contains("seems to be malformed");
     }
 }

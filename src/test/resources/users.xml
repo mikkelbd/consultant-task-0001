@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+    <user>
+        <name>Smith, Kames</name>
+        <sequence>3</sequence>
+        <role>Executive officer</role>
+        <began>1/30/2020</began>
+    </user>
+    <user>
+        <name>Verity, True</name>
+        <sequence>33</sequence>
+        <role>Director</role>
+        <began>12/12/2019</began>
+    </user>
+    <user>
+        <name>Elias, Max</name>
+        <sequence>1</sequence>
+        <role>Director</role>
+        <began>3/13/2020</began>
+    </user>
+    <user>
+        <name>Samson, Sandy</name>
+        <sequence>2</sequence>
+        <role>Employee</role>
+        <began>4/1/1989</began>
+    </user>
+    <user>
+        <name>Mature, Con</name>
+        <sequence>7</sequence>
+        <role null="true"/>
+        <began>12/1/1987</began>
+    </user>
+    <user>
+        <name>Nerder, Lou</name>
+        <sequence>4</sequence>
+        <role>Employee</role>
+        <began>10/3/1985</began>
+    </user>
+    <user>
+        <name>Schønningberg-Müller, Kim</name>
+        <sequence>6</sequence>
+        <role>Director</role>
+        <began>5/1/2019</began>
+    </user>
+    <user>
+        <name>Berg-Müller, Alex</name>
+        <sequence>5</sequence>
+        <role>Director</role>
+        <began>23/9/2018</began>
+    </user>
+</users>
