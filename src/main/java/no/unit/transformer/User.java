@@ -1,6 +1,6 @@
 package no.unit.transformer;
 
-public class User {
+public class User implements Comparable<User> {
     private String name;
     private int sequence;
     private String role;
@@ -39,5 +39,10 @@ public class User {
 
     public void setBegan(String began) {
         this.began = began;
+    }
+
+    @Override
+    public int compareTo(User other) {
+        return this.sequence - other.sequence;
     }
 }

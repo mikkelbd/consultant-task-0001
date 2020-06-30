@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import static no.unit.transformer.ObjectMappers.jsonObjectMapper;
-
 @Command(name = "transformer", mixinStandardHelpOptions = true, version = "1.0")
 public class Transformer implements Callable<Integer> {
 
@@ -24,12 +22,7 @@ public class Transformer implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            if (isJsonFile(inputFile)) {
-                UsersJsonFile users = jsonObjectMapper.readValue(inputFile, UsersJsonFile.class);
-                if (isJsonFile(outputFile)) {
-                    jsonObjectMapper.writeValue(outputFile, users);
-                }
-            }
+            ObjectMappers.transform(inputFile, outputFile);
             return 0;
         } catch (JsonParseException | JsonMappingException e) {
             System.err.println(String.format("File %s seems to be malformed JSON", inputFile));
@@ -38,10 +31,6 @@ public class Transformer implements Callable<Integer> {
             System.err.println(String.format("Could not find or open file %s", inputFile));
             return 1;
         }
-    }
-
-    private boolean isJsonFile(File file) {
-        return file.getName().endsWith(".json");
     }
 
     public static void main(String... args) {

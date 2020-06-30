@@ -5,11 +5,13 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import no.unit.transformer.Transformer;
+import no.unit.transformer.User;
 import no.unit.transformer.UsersJsonFile;
 import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static no.unit.transformer.ObjectMappers.jsonObjectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,6 +26,7 @@ public class StepDefinitions extends TestWiring {
     private String outputFileArgument;
     private File transformedOutputFile;
     private int transformerExitCode;
+    private List<User> usersListFromTransformedFile;
 
     @Given("^the user has an application \"Transformer\" that has a command line interface$")
     public void theUserHasAnApplicationThatHasACommandLineInterface() {
@@ -74,6 +77,7 @@ public class StepDefinitions extends TestWiring {
 
         if ("json".equals(serialization)) {
             UsersJsonFile transformedUsersJsonFile = jsonObjectMapper.readValue(transformedOutputFile, UsersJsonFile.class);
+            usersListFromTransformedFile = transformedUsersJsonFile.getUsers();
             assertThat(transformedUsersJsonFile.getUsers()).isNotEmpty();
         } else if ("xml".equals(serialization)) {
             throw new PendingException("xml case not implemented");
@@ -83,8 +87,8 @@ public class StepDefinitions extends TestWiring {
     }
 
     @And("that the elements in \"users\" section of the file are ordered by element \"sequence\"")
-    public void thatTheElementsInSectionOfTheFileAreOrderedByElement() {
-        throw new PendingException("Checking of ordering is not yet implemented");
+    public void thatTheUsersListIsOrderedBySequence() {
+        assertThat(usersListFromTransformedFile).isSorted();
     }
 
     @And("they see an error message telling them that the input file is badly formatted")
