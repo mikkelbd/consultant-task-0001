@@ -1,12 +1,12 @@
 package no.unit.transformer.features;
 
-import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import no.unit.transformer.Transformer;
 import no.unit.transformer.User;
 import no.unit.transformer.UsersJsonFile;
+import no.unit.transformer.UsersXmlFile;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -16,6 +16,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 import static no.unit.transformer.ObjectMappers.jsonObjectMapper;
+import static no.unit.transformer.ObjectMappers.xmlMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -75,15 +76,15 @@ public class StepDefinitions extends TestWiring {
     }
 
     @And("they see that the data is transformed to {string}")
-    public void theySeeThatTheDataIsTransformedToSerialization(String serialization) throws IOException {
-        assertThat(transformerExitCode).isEqualTo(0);
-
-        if ("json".equals(serialization)) {
+    public void theySeeThatTheDataIsTransformedToSerialization(String outputFormat) throws IOException {
+        if ("json".equals(outputFormat)) {
             UsersJsonFile transformedUsersJsonFile = jsonObjectMapper.readValue(transformedOutputFile, UsersJsonFile.class);
             usersListFromTransformedFile = transformedUsersJsonFile.getUsers();
-            assertThat(transformedUsersJsonFile.getUsers()).isNotEmpty();
-        } else if ("xml".equals(serialization)) {
-            throw new PendingException("xml case not implemented");
+            assertThat(usersListFromTransformedFile).isNotEmpty();
+        } else if ("xml".equals(outputFormat)) {
+            UsersXmlFile transformedUsersXmlFile = xmlMapper.readValue(transformedOutputFile, UsersXmlFile.class);
+            usersListFromTransformedFile = transformedUsersXmlFile.getUser();
+            assertThat(usersListFromTransformedFile).isNotEmpty();
         } else {
             fail("Should either be json or xml");
         }
