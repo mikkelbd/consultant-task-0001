@@ -6,7 +6,6 @@ Feature:
     And "Transformer" has a flag "--input" that takes a single argument that is a filename
     And "Transformer" has a flag "--output" that takes a single argument that is a filename
 
-  @wip
   Scenario Outline: User transforms a file with users from an input file to an output file
     Given the user has a file "<input-file>"
     And the data is formatted correctly
@@ -22,7 +21,6 @@ Feature:
       | users.json | transformed_users.xml  | xml           |
       | users.xml  | transformed_users.json | json          |
 
-  @wip
   Scenario: User attempts to transform badly formatted json file
     Given the user has a file "badly_formatted.json"
     When the user transforms the file to "transformed_users.json"
